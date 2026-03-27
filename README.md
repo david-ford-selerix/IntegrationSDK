@@ -9,38 +9,53 @@ To make onboarding easier, we've added a **self-running executable app path** th
 
 > The legacy .NET sample code remains in place for reference while migration proceeds.
 
-## Quick start (new path)
+## Quick start (no build tooling required)
 
-### 1. Build a native executable
+### 1. Download a prebuilt executable
 
-From repo root:
+Go to **GitHub Releases** and download the binary that matches your platform:
+
+- `integrationsdk-windows-amd64.exe`
+- `integrationsdk-linux-amd64`
+- `integrationsdk-linux-arm64`
+- `integrationsdk-darwin-amd64`
+- `integrationsdk-darwin-arm64`
+
+These files are produced automatically by the GitHub release workflow whenever a release is published.
+
+### 2. Run
+
+On macOS/Linux:
+
+```bash
+chmod +x ./integrationsdk-<platform>
+./integrationsdk-<platform>
+```
+
+On Windows, double-click `integrationsdk-windows-amd64.exe` (or run it from PowerShell / Command Prompt).
+
+When launched, the app starts a local web UI and opens your default browser automatically.
+
+## Build from source (optional)
+
+If you want to build locally instead:
 
 ```bash
 make build
 ```
 
-> Prerequisite: Go must be installed and available on your `PATH`.  
-> Quick check: `go version`
+> Prerequisite: Go must be installed and available on your `PATH`.
 
 This produces:
 
 - `dist/integrationsdk` on Linux/macOS
 - `dist/integrationsdk.exe` on Windows
 
-If `make build` fails with `CreateProcess ... failed` on Windows, Git Bash could not find `go` in `PATH`. Install Go from <https://go.dev/dl/>, then restart your terminal.
-
-### 2. Run
-
-```bash
-make run
-```
-
-When launched, the app starts a local web UI and opens your default browser automatically.
-
 ## Why this path
 
 - **No proprietary IDE dependency** for clients.
 - **Single executable distribution model**.
+- **Precompiled release assets** so users can run immediately.
 - **Embedded UI + docs** so the app can be handed off as one runnable artifact.
 
 ## Project layout (new)
@@ -48,10 +63,10 @@ When launched, the app starts a local web UI and opens your default browser auto
 - `cmd/integrationsdk-app/` – executable entrypoint
 - `cmd/integrationsdk-app/ui/` – embedded static UI
 - `knowledge/` – essential docs repository for implementers
-- `Makefile` – common build/run commands
+- `Makefile` – common local build/run commands
+- `.github/workflows/release-build.yml` – automatic multi-platform release builds
 
 ## Next migration steps
 
 1. Port required .NET integration flows into this executable backend.
-2. Add platform-targeted release packaging in CI.
-3. Expand `knowledge/` with API compatibility notes and examples.
+2. Expand `knowledge/` with API compatibility notes and examples.
