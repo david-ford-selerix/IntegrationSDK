@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IntegrationSDK Launcher</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1 { margin-bottom: 8px; }
+    .sub { color: #94a3b8; margin-top: 0; }
+    .grid {
+      margin-top: 28px;
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+    .status {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      font-size: 14px;
+    }
+    code {
+      background: #111827;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>IntegrationSDK</h1>
+  <p class="sub">Self-running executable launcher with embedded onboarding UI.</p>
+
+  <section class="grid">
+    <article class="card">
+      <h2>Start Here</h2>
+      <p>Use the executable to launch this UI directly. No Visual Studio required for runtime clients.</p>
+    </article>
+    <article class="card">
+      <h2>Knowledge Repository</h2>
+      <p>Open <code>knowledge/README.md</code> in the repo for architecture, setup, and migration docs.</p>
+    </article>
+    <article class="card">
+      <h2>Health Endpoint</h2>
+      <p>Local status API: <a href="/api/health" target="_blank" rel="noreferrer">/api/health</a></p>
+    </article>
+  </section>
+
+  <div id="status" class="status">Checking app health...</div>
+</main>
+
+<script>
+(async function checkHealth() {
+  const el = document.getElementById('status');
+  try {
+    const res = await fetch('/api/health');
+    const payload = await res.json();
+    el.textContent = `Status: ${payload.status} (UTC ${payload.time})`;
+  } catch (err) {
+    el.textContent = `Status check failed: ${err}`;
+  }
+})();
+</script>
+</body>
+</html>
