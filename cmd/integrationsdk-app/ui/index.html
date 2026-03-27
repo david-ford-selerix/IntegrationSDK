@@ -1,90 +1,263 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>IntegrationSDK Launcher</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IntegrationSDK</title>
   <style>
-    :root { color-scheme: light dark; }
-    body {
-      margin: 0;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: #0f172a;
-      color: #e2e8f0;
-    }
-    main {
-      max-width: 920px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    h1 { margin-bottom: 8px; }
-    .sub { color: #94a3b8; margin-top: 0; }
-    .grid {
-      margin-top: 28px;
-      display: grid;
-      gap: 14px;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    }
-    .card {
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 16px;
-    }
-    a {
-      color: #38bdf8;
-      text-decoration: none;
-    }
-    a:hover { text-decoration: underline; }
-    .status {
-      margin-top: 20px;
-      padding: 12px;
-      border-radius: 8px;
-      background: #1e293b;
-      border: 1px solid #334155;
-      font-size: 14px;
-    }
-    code {
-      background: #111827;
-      padding: 1px 4px;
-      border-radius: 4px;
-    }
+    :root { color-scheme: dark; }
+    body { margin: 0; font-family: Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:#020617; color:#e2e8f0; }
+    main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    h1 { margin: 0 0 6px; }
+    .sub { color:#94a3b8; margin:0 0 20px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card { border:1px solid #334155; background:#0f172a; border-radius:10px; padding:14px; }
+    label { display:block; font-size:12px; color:#93c5fd; margin:8px 0 4px; }
+    input, select, textarea, button { width:100%; box-sizing:border-box; border-radius:8px; border:1px solid #334155; background:#020617; color:#e2e8f0; padding:8px; font:inherit; }
+    textarea { min-height: 150px; font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    button { cursor:pointer; background:#0ea5e9; border-color:#0ea5e9; color:#082f49; font-weight:700; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .status { margin: 16px 0; padding:10px; border:1px solid #334155; background:#111827; border-radius:8px; }
+    .tabs { display:flex; gap:8px; margin: 14px 0; }
+    .tab { width:auto; padding:8px 12px; background:#1e293b; color:#cbd5e1; border:1px solid #334155; }
+    .tab.active { background:#0ea5e9; color:#082f49; border-color:#0ea5e9; }
+    .panel { display:none; }
+    .panel.active { display:block; }
+    .inline { display:flex; align-items:center; gap:8px; }
+    .inline input { width:auto; }
+    pre { white-space: pre-wrap; overflow-wrap:anywhere; background:#020617; border:1px solid #1e293b; border-radius:8px; padding:8px; }
   </style>
 </head>
 <body>
-<main>
-  <h1>IntegrationSDK</h1>
-  <p class="sub">Self-running executable launcher with embedded onboarding UI.</p>
+  <main>
+    <h1>IntegrationSDK</h1>
+    <p class="sub">Ported legacy workflows: service calls and SAML launch payload builder.</p>
 
-  <section class="grid">
-    <article class="card">
-      <h2>Start Here</h2>
-      <p>Use the executable to launch this UI directly. No Visual Studio required for runtime clients.</p>
-    </article>
-    <article class="card">
-      <h2>Knowledge Repository</h2>
-      <p>Open <code>knowledge/README.md</code> in the repo for architecture, setup, and migration docs.</p>
-    </article>
-    <article class="card">
-      <h2>Health Endpoint</h2>
-      <p>Local status API: <a href="/api/health" target="_blank" rel="noreferrer">/api/health</a></p>
-    </article>
-  </section>
+    <div id="status" class="status">Loading configuration…</div>
 
-  <div id="status" class="status">Checking app health...</div>
-</main>
+    <div class="tabs">
+      <button class="tab active" data-panel="services">Web Service Examples</button>
+      <button class="tab" data-panel="saml">SAML Examples</button>
+      <button class="tab" data-panel="docs">Migration Notes</button>
+    </div>
+
+    <section id="services" class="panel active">
+      <div class="card">
+        <h3>Service Connection</h3>
+        <div class="row">
+          <div>
+            <label>Enrollment endpoint URL</label>
+            <input id="endpoint" placeholder="https://.../Enrollment.asmx" />
+          </div>
+          <div>
+            <label>Username</label>
+            <input id="username" />
+          </div>
+        </div>
+        <label>Password</label>
+        <input id="password" type="password" />
+      </div>
+
+      <div class="grid" style="margin-top:16px;">
+        <div class="card">
+          <h3>Upload Example</h3>
+          <label>Type</label>
+          <select id="uploadType"><option value="uploadGroup">Upload Group</option><option value="uploadCensus">Upload Census</option></select>
+          <label>Transmittal XML</label>
+          <textarea id="uploadXml"></textarea>
+          <button id="btnUpload">Upload</button>
+          <label>Result</label>
+          <textarea id="uploadResult"></textarea>
+        </div>
+        <div class="card">
+          <h3>Query Example</h3>
+          <label>Type</label>
+          <select id="queryType"><option value="getGroup">Get Group</option><option value="getCensus">Get Census</option></select>
+          <label>Transmittal XML</label>
+          <textarea id="queryXml"></textarea>
+          <button id="btnQuery">Query</button>
+          <label>Result</label>
+          <textarea id="queryResult"></textarea>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h3>Get Login GUID</h3>
+        <div class="row">
+          <div><label>Portfolio ID</label><input id="portfolioId" /></div>
+          <div><label>Employee ID</label><input id="employeeId" /></div>
+        </div>
+        <button id="btnGuid" style="margin-top:8px;">Get login_guid</button>
+        <pre id="guidResult">login_guid=</pre>
+      </div>
+    </section>
+
+    <section id="saml" class="panel">
+      <div class="card">
+        <h3>SAML Payload Builder (legacy request equivalent)</h3>
+        <div class="row">
+          <div><label>SAML Version</label><select id="samlVersion"><option>2.0</option><option>1.1</option></select></div>
+          <div><label>Assertion Consumer URL</label><input id="acsUrl" value="http://localhost:8080/SamlResponse.aspx" /></div>
+        </div>
+        <div class="row">
+          <div><label>Employee ID</label><input id="samlEmployeeId" value="131193" /></div>
+          <div>
+            <label>Layout options</label>
+            <div class="inline"><input type="checkbox" value="HeaderAndFooter" class="layout" /> Header and Footer</div>
+            <div class="inline"><input type="checkbox" value="Sidebar" class="layout" /> Sidebar</div>
+            <div class="inline"><input type="checkbox" value="PersonalInfo" class="layout" /> PersonalInfo</div>
+            <div class="inline"><input type="checkbox" value="Welcome" class="layout" checked /> Welcome</div>
+            <div class="inline"><input type="checkbox" value="Review" class="layout" /> Review</div>
+          </div>
+        </div>
+        <label>Transmittal XML</label>
+        <textarea id="samlXml"></textarea>
+        <button id="btnSaml">Generate SAML payload</button>
+        <label>Response XML</label>
+        <textarea id="samlResult"></textarea>
+        <label>Auto-post form (copy into browser if needed)</label>
+        <textarea id="samlPost"></textarea>
+      </div>
+    </section>
+
+    <section id="docs" class="panel">
+      <div class="card">
+        <h3>Ported from legacy app</h3>
+        <ul>
+          <li>Service operations: Upload, Query, GetLoginGUID.</li>
+          <li>Default transmittal templates based on legacy service examples.</li>
+          <li>SAML request flow now represented with payload generation + POST form preview.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
 
 <script>
-(async function checkHealth() {
-  const el = document.getElementById('status');
+const byId = (id) => document.getElementById(id);
+const statusEl = byId('status');
+let templates = {};
+
+function showStatus(msg) { statusEl.textContent = msg; }
+
+async function init() {
   try {
-    const res = await fetch('/api/health');
-    const payload = await res.json();
-    el.textContent = `Status: ${payload.status} (UTC ${payload.time})`;
+    const [health, cfg, tpls] = await Promise.all([
+      fetch('/api/health').then(r => r.json()),
+      fetch('/api/config').then(r => r.json()),
+      fetch('/api/templates').then(r => r.json())
+    ]);
+
+    templates = tpls;
+    byId('endpoint').value = cfg.enrollmentUrl || '';
+    byId('username').value = cfg.username || '';
+    byId('password').value = cfg.password || '';
+
+    byId('uploadXml').value = templates.uploadGroup || '';
+    byId('queryXml').value = templates.getGroup || '';
+    byId('samlXml').value = templates.uploadCensus || '';
+
+    showStatus(`Status: ${health.status} (UTC ${health.time})`);
   } catch (err) {
-    el.textContent = `Status check failed: ${err}`;
+    showStatus(`Startup failed: ${err}`);
   }
-})();
+}
+
+function bindTabs() {
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      byId(btn.dataset.panel).classList.add('active');
+    });
+  });
+}
+
+function connectionPayload() {
+  return {
+    endpoint: byId('endpoint').value.trim(),
+    username: byId('username').value,
+    password: byId('password').value
+  };
+}
+
+function bindTemplateSelectors() {
+  byId('uploadType').addEventListener('change', (e) => {
+    byId('uploadXml').value = templates[e.target.value] || '';
+  });
+  byId('queryType').addEventListener('change', (e) => {
+    byId('queryXml').value = templates[e.target.value] || '';
+  });
+}
+
+async function postJSON(url, payload) {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+  return json;
+}
+
+function bindServiceActions() {
+  byId('btnUpload').addEventListener('click', async () => {
+    try {
+      const data = await postJSON('/api/service/upload', { ...connectionPayload(), data: byId('uploadXml').value });
+      byId('uploadResult').value = data.result || data.raw;
+    } catch (err) {
+      byId('uploadResult').value = `Error: ${err}`;
+    }
+  });
+
+  byId('btnQuery').addEventListener('click', async () => {
+    try {
+      const data = await postJSON('/api/service/query', { ...connectionPayload(), data: byId('queryXml').value });
+      byId('queryResult').value = data.result || data.raw;
+    } catch (err) {
+      byId('queryResult').value = `Error: ${err}`;
+    }
+  });
+
+  byId('btnGuid').addEventListener('click', async () => {
+    try {
+      const data = await postJSON('/api/service/get-login-guid', {
+        ...connectionPayload(),
+        portfolioId: byId('portfolioId').value.trim(),
+        employeeId: byId('employeeId').value.trim()
+      });
+      byId('guidResult').textContent = `login_guid=${data.result}`;
+    } catch (err) {
+      byId('guidResult').textContent = `login_guid=Error: ${err}`;
+    }
+  });
+}
+
+function bindSamlAction() {
+  byId('btnSaml').addEventListener('click', async () => {
+    const selected = Array.from(document.querySelectorAll('.layout:checked')).map(i => i.value);
+    try {
+      const data = await postJSON('/api/saml/preview', {
+        version: byId('samlVersion').value,
+        acsUrl: byId('acsUrl').value.trim(),
+        employeeId: byId('samlEmployeeId').value.trim(),
+        transmittalXml: byId('samlXml').value,
+        layoutAttributes: selected
+      });
+      byId('samlResult').value = data.xml;
+      byId('samlPost').value = data.postForm;
+    } catch (err) {
+      byId('samlResult').value = `Error: ${err}`;
+    }
+  });
+}
+
+bindTabs();
+bindTemplateSelectors();
+bindServiceActions();
+bindSamlAction();
+init();
 </script>
 </body>
 </html>
