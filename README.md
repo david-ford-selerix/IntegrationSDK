@@ -19,10 +19,15 @@ From repo root:
 make build
 ```
 
+> Prerequisite: Go must be installed and available on your `PATH`.  
+> Quick check: `go version`
+
 This produces:
 
 - `dist/integrationsdk` on Linux/macOS
 - `dist/integrationsdk.exe` on Windows
+
+If `make build` fails with `CreateProcess ... failed` on Windows, Git Bash could not find `go` in `PATH`. Install Go from <https://go.dev/dl/>, then restart your terminal.
 
 ### 2. Run
 
